@@ -8,16 +8,18 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mattn/go-runewidth"
 )
 
-const listHeight = 14
+const (
+	listWidth  = 30
+	listHeight = 16
+)
 
 var (
-	titleStyle        = lipgloss.NewStyle().MarginLeft(2)
-	itemStyle         = lipgloss.NewStyle().PaddingLeft(4)
+	itemStyle         = lipgloss.NewStyle().PaddingLeft(2)
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 )
 
@@ -36,12 +38,16 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	str := fmt.Sprintf("%d. %s", index+1, i)
+	str := CleanString(fmt.Sprintf("%s", i))
 
-	fn := itemStyle.Render
+	var fn func(strs ...string) string
 	if index == m.Index() {
 		fn = func(s ...string) string {
-			return selectedItemStyle.Render("> " + strings.Join(s, " "))
+			return selectedItemStyle.Render(WrapText("> "+strings.Join(s, " "), listWidth, 2))
+		}
+	} else {
+		fn = func(s ...string) string {
+			return itemStyle.Render(PadOrTruncate(strings.Join(s, " "), listWidth))
 		}
 	}
 
@@ -58,67 +64,79 @@ func (m ListModel) InitList() tea.Cmd {
 	return nil
 }
 
-func (m ListModel) UpdateList(msg tea.Msg) ListModel {
+func (m ListModel) UpdateList(msg tea.Msg, depth int) (ListModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.list.SetWidth(msg.Width)
-		return m
+		return m, nil
 
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
-		case "ctrl+c":
-			m.quitting = true
-			return m
+		case "ctrl+c", "q":
+			return m, tea.Quit
+
+		case "esc":
+			return m, UpdateDepthCmd(-1)
 
 		case "enter":
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
 				m.choice = string(i)
 			}
-			return m
+
+			return m, UpdateDepthCmd(1)
 		}
 	}
 
-	// var cmd tea.Cmd
-	// m.list, cmd = m.list.Update(msg)
-	m.list, _ = m.list.Update(msg)
-	return m
+	var cmd tea.Cmd
+
+	m.list, cmd = m.list.Update(msg)
+	return m, cmd
 }
 
-func (m ListModel) ViewList() string {
-	if m.choice != "" {
-		return quitTextStyle.Render(fmt.Sprintf("%s? Sounds good to me.", m.choice))
+type UpdateDepthMsg struct{ delta int }
+
+func UpdateDepthCmd(d int) tea.Cmd {
+	return func() tea.Msg {
+		return UpdateDepthMsg{delta: d}
 	}
-	if m.quitting {
-		return quitTextStyle.Render("Not hungry? That’s cool.")
-	}
+}
+
+func (m ListModel) View(depth int) string {
 	return "\n" + m.list.View()
 }
 
-func NewListModel() ListModel {
-	items := []list.Item{
-		item("Ramen"),
-		item("Tomato Soup"),
-		item("Hamburgers"),
-		item("Cheeseburgers"),
-		item("Currywurst"),
-		item("Okonomiyaki"),
-		item("Pasta"),
-		item("Fillet Mignon"),
-		item("Caviar"),
-		item("Just Wine"),
-	}
-
-	const defaultWidth = 20
+func NewListModel(items []list.Item, opts ...ListModelOpt) ListModel {
+	const defaultWidth = 2000
 
 	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
-	l.Title = "What do you want for dinner?"
+
+	l.SetShowTitle(false)
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
-	l.Styles.Title = titleStyle
 	l.Styles.PaginationStyle = paginationStyle
 	l.Styles.HelpStyle = helpStyle
+	l.DisableQuitKeybindings()
+	l.SetShowHelp(false)
 
 	m := ListModel{list: l}
+
+	for _, opt := range opts {
+		opt(&m)
+	}
 	return m
+}
+
+type ListModelOpt func(*ListModel)
+
+func WithTitle(title string) ListModelOpt {
+	return func(m *ListModel) {
+		m.list.SetShowTitle(true)
+		title = CleanString(title)
+		if runewidth.StringWidth(title) <= listWidth {
+			m.list.Title = title
+		} else {
+			m.list.Title = WrapText(title, listWidth, 10)
+		}
+	}
 }
