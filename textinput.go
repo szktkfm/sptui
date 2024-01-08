@@ -1,8 +1,5 @@
 package main
 
-// A simple program demonstrating the text input component from the Bubbles
-// component library.
-
 import (
 	"fmt"
 	"strings"
@@ -10,13 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
-
-// func main() {
-// 	p := tea.NewProgram(initialModel())
-// 	if _, err := p.Run(); err != nil {
-// 		log.Fatal(err)
-// 	}
-// }
 
 type (
 	errMsg error
@@ -29,7 +19,6 @@ type TextModel struct {
 
 func NewTextModel() TextModel {
 	ti := textinput.New()
-	// ti.Placeholder = "Pikachu"
 	ti.Focus()
 	ti.Prompt = ":"
 	ti.CharLimit = 156
@@ -55,7 +44,6 @@ func (m TextModel) UpdateText(msg tea.Msg) (TextModel, tea.Cmd) {
 			return m, tea.Quit
 		}
 
-	// We handle errors just like any other message
 	case errMsg:
 		m.err = msg
 		return m, nil
@@ -72,6 +60,5 @@ func (m TextModel) ViewText(textMode int) string {
 			m.textInput.View(),
 		)
 	}
-	//TODO: help text
 	return ""
 }

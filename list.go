@@ -7,20 +7,12 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-runewidth"
 )
 
 const (
 	listWidth  = 30
 	listHeight = 16
-)
-
-var (
-	itemStyle         = lipgloss.NewStyle().PaddingLeft(2)
-	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
-	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 )
 
 type item string
@@ -57,7 +49,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 type ListModel struct {
 	list     list.Model
 	choice   string
-	quitting bool
+	Fetching bool
 }
 
 func (m ListModel) InitList() tea.Cmd {
@@ -88,17 +80,31 @@ func (m ListModel) UpdateList(msg tea.Msg, depth int) (ListModel, tea.Cmd) {
 		}
 	}
 
+	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
 	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+	cmds = append(cmds, cmd)
+
+	if len(m.list.Items())-m.list.Index() < 5 {
+		cmds = append(cmds, LoadMoreCmd())
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 type UpdateDepthMsg struct{ delta int }
+type LoadMoreMsg struct{}
 
 func UpdateDepthCmd(d int) tea.Cmd {
 	return func() tea.Msg {
 		return UpdateDepthMsg{delta: d}
+	}
+}
+
+func LoadMoreCmd() tea.Cmd {
+	return func() tea.Msg {
+		return LoadMoreMsg{}
 	}
 }
 
