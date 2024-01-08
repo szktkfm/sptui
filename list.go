@@ -113,9 +113,8 @@ func (m ListModel) View(depth int) string {
 }
 
 func NewListModel(items []list.Item, opts ...ListModelOpt) ListModel {
-	const defaultWidth = 2000
 
-	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
+	l := list.New(items, itemDelegate{}, listWidth, listHeight)
 
 	l.SetShowTitle(false)
 	l.SetShowStatusBar(false)
