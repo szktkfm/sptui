@@ -42,11 +42,9 @@ type CurrentlyPlayingMsg struct {
 type PlaybackMsg struct {
 }
 
-func FetchAlbumsCmd(client *spotify.Client) tea.Cmd {
+func FetchAlbumsCmd(client *spotify.Client, opts ...spotify.RequestOption) tea.Cmd {
 	return func() tea.Msg {
-		//TODO: pagenation
-		//TODO: error handling
-		albums, err := client.CurrentUsersAlbums(context.Background())
+		albums, err := client.CurrentUsersAlbums(context.Background(), opts...)
 		if err != nil {
 			return ErrMsg{Err: err}
 		}
@@ -54,11 +52,9 @@ func FetchAlbumsCmd(client *spotify.Client) tea.Cmd {
 	}
 }
 
-func FetchPlaylistsCmd(client *spotify.Client) tea.Cmd {
+func FetchPlaylistsCmd(client *spotify.Client, opts ...spotify.RequestOption) tea.Cmd {
 	return func() tea.Msg {
-		//TODO: error handling
-		//TODO: pagenation
-		playlist, err := client.CurrentUsersPlaylists(context.Background())
+		playlist, err := client.CurrentUsersPlaylists(context.Background(), opts...)
 		if err != nil {
 			return ErrMsg{Err: err}
 		}
@@ -66,11 +62,9 @@ func FetchPlaylistsCmd(client *spotify.Client) tea.Cmd {
 	}
 }
 
-func FetchShowsCmd(client *spotify.Client) tea.Cmd {
+func FetchShowsCmd(client *spotify.Client, opts ...spotify.RequestOption) tea.Cmd {
 	return func() tea.Msg {
-		//TODO: error handling
-		//TODO: pagenation
-		shows, err := client.CurrentUsersShows(context.Background())
+		shows, err := client.CurrentUsersShows(context.Background(), opts...)
 		if err != nil {
 			return ErrMsg{Err: err}
 		}

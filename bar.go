@@ -12,7 +12,7 @@ import (
 
 const (
 	padding  = 2
-	maxWidth = 44
+	maxWidth = 42
 )
 
 var trackTitleStyle = lipgloss.NewStyle().
@@ -24,23 +24,23 @@ type tickMsg struct {
 }
 
 type BarModel struct {
-	Percent    float64
-	Progress   progress.Model
 	IsPlaying  bool
-	DeltaDur   float64
+	percent    float64
+	progress   progress.Model
+	deltaDur   float64
 	tickID     string
-	TrackTitle string
-	TitleAnim  AnimTextModel
-	animation  bool
+	trackTitle string
+	titleAnim  AnimTextModel
+	animate    bool
 }
 
 func (m BarModel) UpdateBar(msg tea.Msg, client *spotify.Client) (BarModel, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		m.Progress.Width = msg.Width - padding*2 - 4
-		if m.Progress.Width > maxWidth {
-			m.Progress.Width = maxWidth
+		m.progress.Width = msg.Width - padding*2 - 4
+		if m.progress.Width > maxWidth {
+			m.progress.Width = maxWidth
 		}
 		return m, nil
 
@@ -49,17 +49,17 @@ func (m BarModel) UpdateBar(msg tea.Msg, client *spotify.Client) (BarModel, tea.
 			return m, nil
 		}
 		if m.IsPlaying {
-			m.Percent += m.DeltaDur
-			if m.Percent > 1.0 {
-				m.Percent = 1.0
+			m.percent += m.deltaDur
+			if m.percent > 1.0 {
+				m.percent = 1.0
 				return m, GetCurrentlyPlayingTrackCmd(client)
 			}
 		}
 		return m, tickCmd(m.tickID)
 	}
-	if m.animation {
-		newTitleAnim, cmd := m.TitleAnim.UpdateAnimText(msg)
-		m.TitleAnim = newTitleAnim
+	if m.animate {
+		newTitleAnim, cmd := m.titleAnim.UpdateAnimText(msg)
+		m.titleAnim = newTitleAnim
 		if cmd != nil {
 			return m, cmd
 		}
@@ -71,12 +71,12 @@ func (m BarModel) ViewBar() string {
 	pad := strings.Repeat(" ", padding)
 	view := pad + "🎧 "
 
-	if m.animation {
-		view += trackTitleStyle(m.TitleAnim.ViewAnimText()) + "\n"
+	if m.animate {
+		view += trackTitleStyle(m.titleAnim.ViewAnimText()) + "\n"
 	} else {
-		view += trackTitleStyle(m.TrackTitle) + "\n"
+		view += trackTitleStyle(m.trackTitle) + "\n"
 	}
-	view += pad + m.Progress.ViewAs(m.Percent)
+	view += pad + m.progress.ViewAs(m.percent)
 	return view
 }
 
@@ -95,17 +95,17 @@ func NewBarModel(conf BarConfig) BarModel {
 		progress.WithDefaultScaledGradient(),
 	)
 	m := BarModel{
-		Progress:   prog,
-		Percent:    conf.Percent,
+		progress:   prog,
+		percent:    conf.Percent,
 		IsPlaying:  conf.IsPlaying,
-		DeltaDur:   conf.DeltaDur,
+		deltaDur:   conf.DeltaDur,
 		tickID:     conf.TickID,
-		TrackTitle: conf.TrackTitle,
+		trackTitle: conf.TrackTitle,
 	}
 	if len(conf.TrackTitle) > maxWidth {
-		m.TitleAnim = NewAnimText(conf.TrackTitle, conf.TickID,
+		m.titleAnim = NewAnimText(conf.TrackTitle, conf.TickID,
 			WithWidth(maxWidth-4))
-		m.animation = true
+		m.animate = true
 	}
 	return m
 }

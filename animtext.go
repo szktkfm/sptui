@@ -22,9 +22,9 @@ func (m AnimTextModel) UpdateAnimText(msg tea.Msg) (AnimTextModel, tea.Cmd) {
 		}
 		m.offset = (m.offset + 1) % len(m.text)
 		if m.offset == 0 {
-			return m, animTextTickCmd(m.id, 2000*time.Millisecond)
+			return m, AnimTextTickCmd(m.id, 2000*time.Millisecond)
 		}
-		return m, animTextTickCmd(m.id, 100*time.Millisecond)
+		return m, AnimTextTickCmd(m.id, 100*time.Millisecond)
 	}
 
 	return m, nil
@@ -55,7 +55,7 @@ func NewAnimText(t string, id string, opts ...AnimTextModelOpt) AnimTextModel {
 	return m
 }
 
-func animTextTickCmd(id string, t time.Duration) tea.Cmd {
+func AnimTextTickCmd(id string, t time.Duration) tea.Cmd {
 	return tea.Tick(t, func(t time.Time) tea.Msg {
 		return animTextTickMsg{
 			time: t,
