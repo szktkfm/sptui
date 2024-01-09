@@ -6,7 +6,6 @@ spotui is a terminal-based client for Spotify, written in Go and leveraging the 
 ## Installation
 
 ## Usage
-spotui is designed to be intuitive for those familiar with terminal and Vim-like navigation:
 
 ### Key Bindings
 
@@ -21,4 +20,3 @@ Here are the key bindings for spotui:
 | `:next`   | Next track                       |
 | `:prev`   | Previous track                   |
 
-spotui is a straightforward, terminal-centric solution for Spotify users who love working in a command-line environment.
