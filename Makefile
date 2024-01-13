@@ -5,6 +5,9 @@ all: build
 build:
 	go build -o test ./cmd/spotui
 
+install:
+	go install ./cmd/spotui
+
 .PHONY: test
 test:
 	go test ./...
