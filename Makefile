@@ -3,7 +3,7 @@ all: build
 
 .PHONY: build
 build:
-	go build -o test
+	go build -o test ./cmd/spotui
 
 .PHONY: test
 test:

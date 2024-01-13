@@ -1,4 +1,4 @@
-package main
+package spotui
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ var (
 	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
 )
 
-type tabModel struct {
+type TabModel struct {
 	tabs        []string
 	activeTab   int
 	tabContents []ListModel
@@ -67,13 +67,13 @@ type tabModel struct {
 	currentlyPlaying *spotify.CurrentlyPlaying
 }
 
-func (m tabModel) Init() tea.Cmd {
+func (m TabModel) Init() tea.Cmd {
 	return tea.Batch(
 		loginCmd(),
 	)
 }
 
-func (m tabModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m TabModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if !m.authorized {
 		switch msg := msg.(type) {
@@ -180,7 +180,7 @@ func (m tabModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 }
 
-func execTxtCommand(m tabModel) (tea.Model, tea.Cmd) {
+func execTxtCommand(m TabModel) (tea.Model, tea.Cmd) {
 	txtCmd := m.textInput.textInput.Value()
 	m.textMode = NONE
 	m.textInput = NewTextModel()
@@ -211,7 +211,7 @@ func execTxtCommand(m tabModel) (tea.Model, tea.Cmd) {
 	}
 }
 
-func playTrack(m tabModel) (tea.Model, tea.Cmd) {
+func playTrack(m TabModel) (tea.Model, tea.Cmd) {
 	selected := m.trackList.list.Index()
 	switch m.activeTab {
 	case PLAYLIST:
@@ -245,7 +245,7 @@ func playTrack(m tabModel) (tea.Model, tea.Cmd) {
 	}
 }
 
-func listUpdate(m tabModel, msg tea.Msg) (tea.Model, tea.Cmd) {
+func listUpdate(m TabModel, msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case AlbumDetailMsg:
@@ -280,7 +280,7 @@ func listUpdate(m tabModel, msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func tabUpdate(msg tea.Msg, m tabModel) (tea.Model, tea.Cmd) {
+func tabUpdate(msg tea.Msg, m TabModel) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -380,7 +380,7 @@ func tabUpdate(msg tea.Msg, m tabModel) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func getTracks(m tabModel) (tea.Model, tea.Cmd) {
+func getTracks(m TabModel) (tea.Model, tea.Cmd) {
 
 	m.depth = TRACKLIST
 	m.trackList = NewListModel([]list.Item{item(loading)})
@@ -473,7 +473,7 @@ func paddingTabBorder() string {
 	return style.Render(strings.Repeat(" ", 8))
 }
 
-func (m tabModel) View() string {
+func (m TabModel) View() string {
 
 	if !m.authorized {
 		return ""
@@ -495,11 +495,11 @@ func (m tabModel) View() string {
 	return view
 }
 
-func progressView(m tabModel) string {
+func progressView(m TabModel) string {
 	return "\n" + m.progress.ViewBar()
 }
 
-func textInputView(m tabModel) string {
+func textInputView(m TabModel) string {
 	switch m.textMode {
 	case INPUT:
 		return "\n" + m.textInput.ViewText(m.textMode)
@@ -512,7 +512,7 @@ func textInputView(m tabModel) string {
 	}
 }
 
-func tracksView(m tabModel) string {
+func tracksView(m TabModel) string {
 	doc := strings.Builder{}
 	windowStyleDtl := lipgloss.NewStyle().
 		BorderForeground(highlightColor).
@@ -526,7 +526,7 @@ func tracksView(m tabModel) string {
 	return docStyle.Render(doc.String())
 }
 
-func tabView(m tabModel) string {
+func tabView(m TabModel) string {
 	doc := strings.Builder{}
 
 	var renderedTabs []string
@@ -562,6 +562,23 @@ func tabView(m tabModel) string {
 			Render(m.tabContents[m.activeTab].View(m.depth)))
 
 	return docStyle.Render(doc.String())
+}
+
+func NewTabModel() TabModel {
+	tabs := []string{"Playlist", "Album", "Podcast"}
+	listModels := []ListModel{
+		NewListModel([]list.Item{item(loading)}),
+		NewListModel([]list.Item{item(loading)}),
+		NewListModel([]list.Item{item(loading)}),
+	}
+
+	return TabModel{
+		tabs:        tabs,
+		tabContents: listModels,
+		depth:       TOP,
+		textInput:   NewTextModel(),
+		help:        NewHelp(),
+	}
 }
 
 func max(a, b int) int {
