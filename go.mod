@@ -8,9 +8,10 @@ require (
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/google/uuid v1.5.0
 	github.com/mattn/go-runewidth v0.0.15
-	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
+	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/zmb3/spotify/v2 v2.4.0
-	golang.org/x/oauth2 v0.15.0
+	golang.org/x/oauth2 v0.16.0
+	golang.org/x/text v0.14.0
 )
 
 require (
@@ -28,11 +29,10 @@ require (
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.1-0.20230530133925-c48e322e2a8f // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
-	golang.org/x/text v0.14.0
+	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/term v0.16.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
