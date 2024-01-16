@@ -3,10 +3,10 @@ all: build
 
 .PHONY: build
 build:
-	go build -o test ./cmd/spotui
+	go build -o test ./cmd/sptui
 
 install:
-	go install ./cmd/spotui
+	go install ./cmd/sptui
 
 .PHONY: test
 test:
@@ -15,4 +15,4 @@ test:
 .PHONY: clean
 clean:
 	rm -f test
-	rm ~/.config/spotui/spotify_token.json
+	rm ~/.config/sptui/spotify_token.json

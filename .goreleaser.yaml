@@ -22,7 +22,8 @@ builds:
       - linux
       - windows
       - darwin
-    main: ./cmd/spotui/
+    main: ./cmd/sptui/
+    binary: sptui
 
 archives:
   - format: tar.gz

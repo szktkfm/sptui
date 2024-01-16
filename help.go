@@ -1,4 +1,4 @@
-package spotui
+package sptui
 
 import (
 	"github.com/charmbracelet/bubbles/help"

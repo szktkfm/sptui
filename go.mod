@@ -1,4 +1,4 @@
-module github.com/szktkfm/spotui
+module github.com/szktkfm/sptui
 
 go 1.19
 

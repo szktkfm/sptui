@@ -1,4 +1,4 @@
-package spotui
+package sptui
 
 import (
 	"context"
@@ -38,7 +38,7 @@ var (
 			spotifyauth.ScopeUserReadCurrentlyPlaying,
 		))
 	tokenCh       = make(chan *oauth2.Token)
-	tokenFilePath = ".config/spotui/spotify_token.json"
+	tokenFilePath = ".config/sptui/spotify_token.json"
 )
 
 func generateCodeVerifier() (string, error) {
