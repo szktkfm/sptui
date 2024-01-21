@@ -1,7 +1,6 @@
 package sptui
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/mattn/go-runewidth"
@@ -23,8 +22,6 @@ const (
 
 	empty = ""
 )
-
-var replacer = strings.NewReplacer(string(ZWSP), empty)
 
 func RemoveZeroWidthSpace(s string) string {
 	return strings.Replace(s, string(ZWSP), empty, -1)
@@ -63,7 +60,7 @@ func WrapText(s string, width int, line int) string {
 
 func PadOrTruncate(s string, n int) string {
 	if runewidth.StringWidth(s) > listWidth {
-		return fmt.Sprintf("%s", runewidth.Truncate(s, n, ""))
+		return runewidth.Truncate(s, n, "")
 	} else {
 		return s + strings.Repeat(" ", listWidth-runewidth.StringWidth(s))
 	}

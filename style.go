@@ -11,11 +11,7 @@ var (
 	inactiveTabStyle = lipgloss.NewStyle().Border(inactiveTabBorder, true).
 				BorderForeground(highlightColor).Padding(0, 1)
 	activeTabStyle = inactiveTabStyle.Copy().Border(activeTabBorder, true)
-	borderStyle    = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder(), false, false, false, true).
-			BorderForeground(lipgloss.Color("5"))
-
-	windowStyle = lipgloss.NewStyle().
+	windowStyle    = lipgloss.NewStyle().
 			BorderForeground(highlightColor).
 			Padding(1, 5).
 			Align(lipgloss.Left).

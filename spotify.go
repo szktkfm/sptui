@@ -39,6 +39,10 @@ type CurrentlyPlayingMsg struct {
 	Track *spotify.CurrentlyPlaying
 }
 
+type PlayerDevicesMsg struct {
+	PlayerDevices []spotify.PlayerDevice
+}
+
 type PlaybackMsg struct {
 }
 
@@ -111,6 +115,16 @@ func GetCurrentlyPlayingTrackCmd(client *spotify.Client) tea.Cmd {
 
 		//TODO: podcast support
 		return CurrentlyPlayingMsg{Track: track}
+	}
+}
+
+func GetAvailableDevicesCmd(client *spotify.Client) tea.Cmd {
+	return func() tea.Msg {
+		device, err := client.PlayerDevices(context.Background())
+		if err != nil {
+			return ErrMsg{Err: err}
+		}
+		return PlayerDevicesMsg{PlayerDevices: device}
 	}
 }
 

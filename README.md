@@ -43,4 +43,5 @@ Here are the key bindings for sptui:
 | `:pause`  | Pause playback                   |
 | `:next`   | Next track                       |
 | `:prev`   | Previous track                   |
+| `:device` | Select a device                  |
 

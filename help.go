@@ -6,11 +6,12 @@ import (
 )
 
 type KeyMap struct {
-	Play  key.Binding
-	Pause key.Binding
-	Next  key.Binding
-	Prev  key.Binding
-	Help  key.Binding
+	Play   key.Binding
+	Pause  key.Binding
+	Next   key.Binding
+	Prev   key.Binding
+	Help   key.Binding
+	Device key.Binding
 }
 
 type HelpModel struct {
@@ -45,6 +46,10 @@ func NewHelp() HelpModel {
 				key.WithKeys(""),
 				key.WithHelp(":help", ""),
 			),
+			Device: key.NewBinding(
+				key.WithKeys(""),
+				key.WithHelp(":device", ""),
+			),
 			//TODO: add more keybindings
 		},
 	}
@@ -59,6 +64,7 @@ func (m HelpModel) ShortHelp() []key.Binding {
 		m.KeyMap.Pause,
 		m.KeyMap.Next,
 		m.KeyMap.Prev,
+		m.KeyMap.Device,
 	}
 }
 
@@ -69,6 +75,7 @@ func (m HelpModel) FullHelp() [][]key.Binding {
 			m.KeyMap.Pause,
 			m.KeyMap.Next,
 			m.KeyMap.Prev,
+			m.KeyMap.Device,
 			m.KeyMap.Help,
 		},
 	}

@@ -1,7 +1,6 @@
 package sptui
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -56,9 +55,7 @@ func (m TextModel) UpdateText(msg tea.Msg) (TextModel, tea.Cmd) {
 func (m TextModel) ViewText(textMode int) string {
 	pad := strings.Repeat(" ", padding)
 	if textMode == INPUT || textMode == ERROR {
-		return pad + fmt.Sprintf(
-			m.textInput.View(),
-		)
+		return pad + m.textInput.View()
 	}
 	return ""
 }

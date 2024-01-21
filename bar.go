@@ -118,3 +118,7 @@ func tickCmd(id string) tea.Cmd {
 		}
 	})
 }
+
+func (m BarModel) PositionMs() int {
+	return int(1000 / m.deltaDur * m.percent)
+}
