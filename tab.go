@@ -42,7 +42,7 @@ type TabModel struct {
 	tabs        []string
 	activeTab   int
 	tabContents []ListModel
-	trackList   ListModel
+	listView    ListModel
 
 	progress BarModel
 
@@ -65,6 +65,9 @@ type TabModel struct {
 	selectedPlaylist *spotify.FullPlaylist
 
 	currentlyPlaying *spotify.CurrentlyPlaying
+	currentDevice    *spotify.PlayerDevice
+	devices          []spotify.PlayerDevice
+	deviceMode       bool
 }
 
 func (m TabModel) Init() tea.Cmd {
@@ -132,6 +135,10 @@ func (m TabModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return execTxtCommand(m)
 			}
 
+			if m.deviceMode {
+				return playOnDevice(m)
+			}
+
 			if m.depth == TRACKLIST {
 				return playTrack(m)
 			}
@@ -155,6 +162,14 @@ func (m TabModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, tea.Batch(tickCmd(tickID),
 			AnimTextTickCmd(tickID, 2000*time.Millisecond))
+
+	case PlayerDevicesMsg:
+		m.listView = NewListModel(playerDeviceToItemList(msg.PlayerDevices),
+			WithTitle("Select Device"),
+		)
+		m.deviceMode = true
+		m.devices = msg.PlayerDevices
+		m.depth = TRACKLIST
 
 	case PlaybackMsg:
 		//TODO: Fix
@@ -180,6 +195,22 @@ func (m TabModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 }
 
+func playOnDevice(m TabModel) (tea.Model, tea.Cmd) {
+	m.currentDevice = &m.devices[m.listView.list.Index()]
+	m.deviceMode = false
+	m.depth = TOP
+	if m.currentlyPlaying != nil && m.currentlyPlaying.Playing {
+		return m, StartPlaybackCmd(m.client,
+			&spotify.PlayOptions{
+				DeviceID:   &m.currentDevice.ID,
+				URIs:       []spotify.URI{m.currentlyPlaying.Item.URI},
+				PositionMs: m.progress.PositionMs(),
+			},
+		)
+	}
+	return m, nil
+}
+
 func execTxtCommand(m TabModel) (tea.Model, tea.Cmd) {
 	txtCmd := m.textInput.textInput.Value()
 	m.textMode = NONE
@@ -193,18 +224,31 @@ func execTxtCommand(m TabModel) (tea.Model, tea.Cmd) {
 		if m.progress.IsPlaying {
 			return m, nil
 		}
-		return m, StartPlaybackCmd(m.client,
-			&spotify.PlayOptions{
+
+		var opt *spotify.PlayOptions
+		if m.devices != nil {
+			opt = &spotify.PlayOptions{
+				DeviceID:   &m.currentDevice.ID,
 				URIs:       []spotify.URI{m.currentlyPlaying.Item.URI},
 				PositionMs: m.currentlyPlaying.Progress,
-			},
-		)
+			}
+
+		} else {
+			opt = &spotify.PlayOptions{
+				URIs:       []spotify.URI{m.currentlyPlaying.Item.URI},
+				PositionMs: m.currentlyPlaying.Progress,
+			}
+		}
+		return m, StartPlaybackCmd(m.client, opt)
+
 	case "pause":
 		return m, PausePlaybackCmd(m.client)
 	case "next":
 		return m, NextPlaybackCmd(m.client)
 	case "prev":
 		return m, PreviousPlaybackCmd(m.client)
+	case "device":
+		return m, GetAvailableDevicesCmd(m.client)
 
 	default:
 		return m, nil
@@ -212,7 +256,7 @@ func execTxtCommand(m TabModel) (tea.Model, tea.Cmd) {
 }
 
 func playTrack(m TabModel) (tea.Model, tea.Cmd) {
-	selected := m.trackList.list.Index()
+	selected := m.listView.list.Index()
 	switch m.activeTab {
 	case PLAYLIST:
 		return m, StartPlaybackCmd(m.client,
@@ -250,20 +294,20 @@ func listUpdate(m TabModel, msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case AlbumDetailMsg:
 		m.selectedAlbum = msg.Album
-		m.trackList = NewListModel(
+		m.listView = NewListModel(
 			albumTracksToItemList(msg.Album.Tracks.Tracks),
 			WithTitle(msg.Album.Name+" ("+msg.Album.Artists[0].Name+")"),
 		)
 
 	case ShowDetailMsg:
 		m.episodes = msg.Show.Episodes.Episodes
-		m.trackList = NewListModel(episodesToItemList(m.episodes),
+		m.listView = NewListModel(episodesToItemList(m.episodes),
 			WithTitle(msg.Show.Name),
 		)
 
 	case PlaylistDetailMsg:
 		m.selectedPlaylist = msg.Playlist
-		m.trackList = NewListModel(playlistTracksToItemList(msg.Playlist.Tracks.Tracks),
+		m.listView = NewListModel(playlistTracksToItemList(msg.Playlist.Tracks.Tracks),
 			WithTitle(msg.Playlist.Name),
 		)
 
@@ -275,8 +319,8 @@ func listUpdate(m TabModel, msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	newListModel, cmd := m.trackList.UpdateList(msg, m.depth)
-	m.trackList = newListModel
+	newListModel, cmd := m.listView.UpdateList(msg, m.depth)
+	m.listView = newListModel
 	return m, cmd
 }
 
@@ -383,7 +427,7 @@ func tabUpdate(msg tea.Msg, m TabModel) (tea.Model, tea.Cmd) {
 func getTracks(m TabModel) (tea.Model, tea.Cmd) {
 
 	m.depth = TRACKLIST
-	m.trackList = NewListModel([]list.Item{item(loading)})
+	m.listView = NewListModel([]list.Item{item(loading)})
 
 	selected := m.tabContents[m.activeTab].list.Index()
 	switch m.activeTab {
@@ -396,6 +440,14 @@ func getTracks(m TabModel) (tea.Model, tea.Cmd) {
 	default:
 		return m, nil
 	}
+}
+
+func playerDeviceToItemList(devices []spotify.PlayerDevice) []list.Item {
+	var itemList []list.Item
+	for _, d := range devices {
+		itemList = append(itemList, item(d.Name))
+	}
+	return itemList
 }
 
 func playlistTracksToItemList(tracks []spotify.PlaylistTrack) []list.Item {
@@ -522,7 +574,7 @@ func tracksView(m TabModel) string {
 
 	doc.WriteString(
 		windowStyleDtl.
-			Render(m.trackList.View(m.depth)))
+			Render(m.listView.View(m.depth)))
 	return docStyle.Render(doc.String())
 }
 

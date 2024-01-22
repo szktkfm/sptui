@@ -30,7 +30,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	str := CleanString(fmt.Sprintf("%s", i))
+	str := CleanString(string(i))
 
 	var fn func(strs ...string) string
 	if index == m.Index() {

@@ -15,9 +15,9 @@ type AnimTextModel struct {
 }
 
 func (m AnimTextModel) UpdateAnimText(msg tea.Msg) (AnimTextModel, tea.Cmd) {
-	switch msg.(type) {
+	switch msg := msg.(type) {
 	case animTextTickMsg:
-		if m.id != msg.(animTextTickMsg).id {
+		if m.id != msg.id {
 			return m, nil
 		}
 		m.offset = (m.offset + 1) % len(m.text)

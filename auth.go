@@ -32,6 +32,7 @@ var (
 		spotifyauth.WithScopes(
 			spotifyauth.ScopeUserReadPrivate,
 			spotifyauth.ScopeUserModifyPlaybackState,
+			spotifyauth.ScopeUserReadPlaybackState,
 			spotifyauth.ScopeUserLibraryRead,
 			spotifyauth.ScopePlaylistReadCollaborative,
 			spotifyauth.ScopePlaylistReadPrivate,
