@@ -9,6 +9,11 @@ sptui is a Spotify TUI player, written in Go and leveraging the  [charmbracelet/
 ## Installation
 Visit the  [GitHub Releases](https://github.com/szktkfm/sptui/releases) page for sptui and download the appropriate binary for your operating system.
 
+If you are on NetBSD, a package is available from the [official repositories](https://pkgsrc.se/audio/sptui). To install, simply run:
+```bash
+pkgin install sptui
+```
+
 ## Usage
 ### Connecting to Spotify’s API
 To use sptui, you need to connect it to Spotify's API. Follow these steps:
