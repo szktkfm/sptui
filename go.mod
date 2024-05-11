@@ -29,10 +29,10 @@ require (
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.1-0.20230530133925-c48e322e2a8f // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/term v0.16.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
