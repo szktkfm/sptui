@@ -1,6 +1,6 @@
 module github.com/szktkfm/sptui
 
-go 1.19
+go 1.23
 
 require (
 	github.com/charmbracelet/bubbles v0.17.1
