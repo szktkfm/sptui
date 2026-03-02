@@ -20,7 +20,7 @@ To use sptui, you need to connect it to Spotify's API. Follow these steps:
 
 1. [Go to the Spotify Dashboard](https://developer.spotify.com/dashboard).
 2. Create a new app to obtain your Client ID and Client Secret.
-3. In `Edit Settings`, add `http://localhost:21112/callback` to the `Redirect URIs`. Don’t forget to save your changes.
+3. In `Edit Settings`, add `http://127.0.0.1:21112/callback` to the `Redirect URIs`. Don’t forget to save your changes.
 4. Set your Client ID as an environment variable `SPOTIFY_ID`. 
 5. Run sptui. You will see an official Spotify URL for authentication.
 

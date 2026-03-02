@@ -25,7 +25,7 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-const redirectURI = "http://localhost:21112/callback"
+const redirectURI = "http://127.0.0.1:21112/callback"
 
 var (
 	auth = spotifyauth.New(spotifyauth.WithRedirectURL(redirectURI),
